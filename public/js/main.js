@@ -1,4 +1,39 @@
+import SpriteSheet from './SpriteSheet.js'; 
+import {loadImage, loadLevel} from './loaders.js';
+
+function drawBackground(background, context, sprites) {
+    background.ranges.forEach(([x1, x2, y1, y2]) => {
+        for(let x = x1;x < x2;x++){
+            for(let y = y1; y < y2;y++) {
+                sprites.drawTile(background.tile, context, x, y);
+            }
+        }
+    })
+}
+
+// Get a reference to an HTML canvas element with the id 'screen'.
 const canvas = document.getElementById('screen');
+
+// Get a 2D rendering context for the canvas, which allows drawing on it.
 const context = canvas.getContext('2d');
 
-context.fillRect(0, 0, 50, 50);
+// Call the "loadImage" function with the URL '/img/tiles.png', which returns a Promise.
+loadImage('/img/tiles.png')
+    .then(image => {
+        const sprites = new SpriteSheet(image, 16, 16);
+        sprites.define('ground', 0, 0); //Naming & specifying from where in the src img we're starting the 16x16 box. 0x0 = top left corner
+        sprites.define('sky', 3, 23);
+
+        loadLevel('1-1')
+        .then(level => {
+            level.backgrounds.forEach(background => {
+                drawBackground(background, context, sprites)
+            }) 
+        });
+
+        for(let x = 0;x < 25;x++){
+            for(let y = 12; y < 14;y++) {
+                sprites.drawTile('ground', context, x, y);
+            }
+        }
+    });
