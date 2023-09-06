@@ -11,29 +11,28 @@ function drawBackground(background, context, sprites) {
     })
 }
 
+function loadBackgroundSprites() {
+    return loadImage('/img/tiles.png')
+    .then(image => {
+        const sprites = new SpriteSheet(image, 16, 16);
+        sprites.define('ground', 0, 0); //Naming & specifying from where in the src img we're starting the 16x16 box. 0x0 = top left corner
+        sprites.define('sky', 3, 23);
+        return sprites;
+    });
+}
+
 // Get a reference to an HTML canvas element with the id 'screen'.
 const canvas = document.getElementById('screen');
 
 // Get a 2D rendering context for the canvas, which allows drawing on it.
 const context = canvas.getContext('2d');
 
-// Call the "loadImage" function with the URL '/img/tiles.png', which returns a Promise.
-loadImage('/img/tiles.png')
-    .then(image => {
-        const sprites = new SpriteSheet(image, 16, 16);
-        sprites.define('ground', 0, 0); //Naming & specifying from where in the src img we're starting the 16x16 box. 0x0 = top left corner
-        sprites.define('sky', 3, 23);
-
-        loadLevel('1-1')
-        .then(level => {
-            level.backgrounds.forEach(background => {
-                drawBackground(background, context, sprites)
-            }) 
-        });
-
-        for(let x = 0;x < 25;x++){
-            for(let y = 12; y < 14;y++) {
-                sprites.drawTile('ground', context, x, y);
-            }
-        }
-    });
+Promise.all([ //Want both of these to load in parallell to avoid unnecessary delay
+    loadBackgroundSprites(),
+    loadLevel('1-1')
+])
+.then(([ sprites, level]) => { // Instead of having to specify result[0] & result[1]
+    level.backgrounds.forEach(background => {
+        drawBackground(background, context, sprites)
+    }) 
+});
