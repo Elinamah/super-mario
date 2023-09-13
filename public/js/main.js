@@ -1,7 +1,9 @@
 import Compositor from './Compositor.js';
-import { loadMarioSprite, loadBackgroundSprites } from './sprites.js';
+import Timer from './Timer.js';
+import { loadBackgroundSprites } from './sprites.js';
 import { loadLevel } from './loaders.js';
-import { createBackgroundLayer, createSpriteLayer} from './layers.js';
+import { createSpriteLayer, createBackgroundLayer} from './layers.js';
+import { createMario } from './entities.js';
 
 // Get a reference to an HTML canvas element with the id 'screen'.
 const canvas = document.getElementById('screen');
@@ -9,52 +11,33 @@ const canvas = document.getElementById('screen');
 // Get a 2D rendering context for the canvas, which allows drawing on it.
 const context = canvas.getContext('2d');
 
-class Vec2 {
-    constructor(x, y) {
-        this.set(x, y);
-    }
-
-    set(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-}
-
-class Entity {
-    constructor() {
-        this.pos = new Vec2(0, 0);
-        this.vel = new Vec2(0, 0);
-    }
-}
-
 Promise.all([ //Want both of these to load in parallell to avoid unnecessary delay
-    loadMarioSprite(),
+    createMario(),
     loadBackgroundSprites(),
     loadLevel('1-1')
 ])
-.then(([ marioSprite, backgroundSprites, level]) => { // Instead of having to specify result[0] & result[1]
+.then(([ mario, backgroundSprites, level]) => { // Instead of having to specify result[0] & result[1]
     const comp = new Compositor();
 
     const backgroundLayer = createBackgroundLayer(level.backgrounds, backgroundSprites);
     comp.layers.push(backgroundLayer);
 
-    const gravity = 0.5;
+    const gravity = 30;
 
-    const mario = new Entity();
     mario.pos.set(64, 180);
-    mario.vel.set(2, -10);
+    mario.vel.set(200, -600);
 
-    const spriteLayer = createSpriteLayer(marioSprite, mario.pos);
+    const spriteLayer = createSpriteLayer(mario);
     comp.layers.push(spriteLayer);
 
+    const timer = new Timer(1/60);
+
     //uses the browers own refresh function for updating the image
-    function update() {
-        comp.draw(context);
-        mario.pos.x += mario.vel.x;
-        mario.pos.y += mario.vel.y;
-        mario.vel.y += gravity;
-        requestAnimationFrame(update);
+    timer.update = function update(deltaTime) {
+            comp.draw(context);
+            mario.update(deltaTime);
+            mario.vel.y += gravity;
     }
 
-    update(); 
+    timer.start();
 });
