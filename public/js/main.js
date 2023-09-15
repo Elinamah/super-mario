@@ -17,7 +17,7 @@ Promise.all([ //Want both of these to load in parallell to avoid unnecessary del
     loadLevel('1-1')
 ])
 .then(([ mario, backgroundSprites, level]) => { // Instead of having to specify result[0] & result[1]
-    const comp = new Compositor();
+    const comp = new Compositor(); //for layers
 
     const backgroundLayer = createBackgroundLayer(level.backgrounds, backgroundSprites);
     comp.layers.push(backgroundLayer);
@@ -32,12 +32,12 @@ Promise.all([ //Want both of these to load in parallell to avoid unnecessary del
 
     const timer = new Timer(1/60);
 
-    //uses the browers own refresh function for updating the image
+    // Uses a hard coded value(1/60) to ensure stability even with different kinds of user framerates and framerate instabilities
     timer.update = function update(deltaTime) {
-            comp.draw(context);
-            mario.update(deltaTime);
-            mario.vel.y += gravity;
+        comp.draw(context);
+        mario.update(deltaTime);
+        mario.vel.y += gravity;
     }
 
-    timer.start();
+    timer.start(); 
 });

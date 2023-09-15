@@ -3,7 +3,7 @@ export default class Timer {
         let accumulatedTime = 0; 
         let lastTime = 0;
 
-        //uses the browers own refresh function for updating the image
+        //uses the time stamp coming from requestAnimationFrame
         this.updateProxy = (time) => {
             accumulatedTime += (time - lastTime) / 1000;
 
@@ -21,6 +21,7 @@ export default class Timer {
 
     enqueue() {
         requestAnimationFrame(this.updateProxy);
+        //setTimeout(this.updateProxy, 1000/2, performance.now()); //If you want to try different frame rates
     }
 
     start() {
