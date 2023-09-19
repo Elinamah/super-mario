@@ -17,6 +17,11 @@ export default class Jump extends Trait {
         this.engageTime = 0;
     }
 
+    /**
+     * Update the jump animation based on an entity
+     * @param {*} entity The entity/sprite that will jump
+     * @param {*} deltaTime The time duration for the update  
+     */
     update(entity, deltaTime) { 
         if (this.engageTime > 0) { //as long as jump is engaged
             entity.vel.y = -this.velocity; // - because we want mario to go upwards

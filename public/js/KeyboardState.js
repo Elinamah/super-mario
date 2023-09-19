@@ -10,10 +10,19 @@ export default class KeyboardState {
         this.keyMap = new Map();
     }
 
+    /**
+     * Maps a keyboard key code to a callback function.
+     * @param {*} keyCode - The key code to map.
+     * @param {*} callback - The function to be executed when the key is pressed.
+     */
     addMapping(keyCode, callback) {
         this.keyMap.set(keyCode, callback);
     }
 
+    /**
+     * Handles keyboard events to map key presses and the functions to be executed when keys are pressed.
+     * @param {*} event - The keyboard event object, which key is pressed and a check if it's a new event.
+     */
     handleEvent(event) {
         const {keyCode} = event;
 
@@ -52,6 +61,11 @@ export default class KeyboardState {
 
     }
 
+    /**
+     * Sets up event listeners for keydown and keyup events on the specified `window` object
+     * and processes the events using the `handleEvent` method.
+     * @param {*} window The window object to listen to.
+     */
     listenTo(window) {
         ['keydown', 'keyup'].forEach(eventName => {
             window.addEventListener(eventName, event => {

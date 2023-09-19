@@ -6,6 +6,14 @@ export default class SpriteSheet { //default export allows name to be changed wi
         this.tiles = new Map();
     }
 
+    /**
+     * Defines entity based on name, pixel placement and size
+     * @param {*} name 
+     * @param {*} x 
+     * @param {*} y 
+     * @param {*} width 
+     * @param {*} height 
+     */
     define(name, x, y, width, height) {
         const buffer = document.createElement('canvas');
         buffer.width = width;
@@ -26,15 +34,35 @@ export default class SpriteSheet { //default export allows name to be changed wi
         this.tiles.set(name, buffer);
     }
 
+    /**
+     * Define tile based on name and pixel placement
+     * @param {*} name 
+     * @param {*} x 
+     * @param {*} y 
+     */
     defineTile(name, x, y) {
         this.define(name, x * this.width, y * this.height, this.width, this.height);
     }
 
+    /**
+     * Draws based on name of entity, context and pixel placement
+     * @param {*} name 
+     * @param {*} context 
+     * @param {*} x 
+     * @param {*} y 
+     */
     draw(name, context, x, y) {
         const buffer = this.tiles.get(name);
         context.drawImage(buffer, x, y);
     }
 
+    /**
+     * Draws a tile based on name, context and pixel placement
+     * @param {*} name 
+     * @param {*} context 
+     * @param {*} x 
+     * @param {*} y 
+     */
     drawTile(name, context, x, y) {
         this.draw(name, context, x * this.width, y * this.height);
     }

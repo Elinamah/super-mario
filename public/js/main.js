@@ -1,8 +1,5 @@
-import Compositor from './Compositor.js';
 import Timer from './Timer.js';
-import { loadBackgroundSprites } from './sprites.js';
 import { loadLevel } from './loaders.js';
-import { createSpriteLayer, createBackgroundLayer} from './layers.js';
 import { createMario } from './entities.js';
 import Keyboard from './KeyboardState.js';
 
@@ -14,18 +11,14 @@ const context = canvas.getContext('2d');
 
 Promise.all([ //Want both of these to load in parallell to avoid unnecessary delay
     createMario(),
-    loadBackgroundSprites(),
-    loadLevel('1-1')
+    loadLevel('1-1') //Level will load in with all layers and entities
 ])
-.then(([ mario, backgroundSprites, level]) => { // Instead of having to specify result[0] & result[1]
-    const comp = new Compositor(); //for layers
-
-    const backgroundLayer = createBackgroundLayer(level.backgrounds, backgroundSprites);
-    comp.layers.push(backgroundLayer);
+.then(([ mario, level]) => { // Instead of having to specify result[0] & result[1]
 
     const gravity = 2000;
-    mario.pos.set(64, 180);
-    //mario.vel.set(200, -600);
+    mario.pos.set(64, 64);
+
+    level.entities.add(mario);
 
     const SPACE = 32;
     const input = new Keyboard();
@@ -39,15 +32,17 @@ Promise.all([ //Want both of these to load in parallell to avoid unnecessary del
     });
     input.listenTo(window);
 
-    const spriteLayer = createSpriteLayer(mario);
-    comp.layers.push(spriteLayer);
-
     const timer = new Timer(1/60);
 
     // Uses a hard coded value(1/60) to ensure stability even with different kinds of user framerates and framerate instabilities
+    /**
+     * Updates the game level and Mario's horizontal speed and direction.
+     * Also draws the updated level on the canvas.
+     * @param {number} deltaTime - The time increment for the update.
+     */
     timer.update = function update(deltaTime) {
-        mario.update(deltaTime);
-        comp.draw(context);
+        level.update(deltaTime);
+        level.comp.draw(context);
         mario.vel.y += gravity * deltaTime;
     }
 

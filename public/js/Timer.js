@@ -3,7 +3,11 @@ export default class Timer {
         let accumulatedTime = 0; 
         let lastTime = 0;
 
-        //uses the time stamp coming from requestAnimationFrame
+        /**
+         * Updates game state and rendering based on the elapsed time since the last frame.
+         * 
+         * @param {number} time - The timestamp provided by requestAnimationFrame.
+         */
         this.updateProxy = (time) => {
             accumulatedTime += (time - lastTime) / 1000;
 

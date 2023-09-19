@@ -1,6 +1,10 @@
 import SpriteSheet from './SpriteSheet.js'; 
 import { loadImage } from './loaders.js';
 
+/**
+ * Takes an image of different Mario Sprite drawings and specifying which one we want
+ * @returns loadImage -> Mario Sprite
+ */
 export function loadMarioSprite() {
     return loadImage('/img/characters.gif')
     .then(image => {
@@ -10,6 +14,10 @@ export function loadMarioSprite() {
     });
 }
 
+/**
+ * Takes an image of multiple tile drawings and specifying which ones we want in our game
+ * @returns loadImage -> SpriteSheet(which inclused a map of tiles) of the tiles we want
+ */ 
 export function loadBackgroundSprites() {
     return loadImage('/img/tiles.png')
     .then(image => {

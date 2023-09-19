@@ -1,3 +1,10 @@
+
+/**
+ * Draws one specific background with predefined tiles, context and sprites
+ * @param {*} background 
+ * @param {*} context 
+ * @param {*} sprites 
+ */
 function drawBackground(background, context, sprites) {
     background.ranges.forEach(([x1, x2, y1, y2]) => {
         for(let x = x1;x < x2;x++){
@@ -8,6 +15,12 @@ function drawBackground(background, context, sprites) {
     })
 }
 
+/**
+ * Combines all backgrounds and sprites and add them together
+ * @param {*} backgrounds 
+ * @param {*} sprites 
+ * @returns drawBackgroundLayer(context) 
+ */
 export function createBackgroundLayer(backgrounds, sprites) {
     const buffer = document.createElement('canvas');
     buffer.width = 256;
@@ -22,8 +35,15 @@ export function createBackgroundLayer(backgrounds, sprites) {
     }
 }
 
-export function createSpriteLayer(entity) {
+/**
+ * Takes in set of entities and draw them on the context
+ * @param {*} entities 
+ * @returns drawSpriteLayer(context)
+ */
+export function createSpriteLayer(entities) {
     return function drawSpriteLayer(context) {
-        entity.draw(context);
+        entities.forEach(entity => {
+            entity.draw(context);
+        })
     };
 }

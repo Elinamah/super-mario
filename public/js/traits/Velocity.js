@@ -5,7 +5,11 @@ export default class Velocity extends Trait {
         super('velocity');
     }
 
-    //when you attach normal function to object, you get access to "this"
+    /**
+     * Update velocity on an entity
+     * @param {*} entity Entity to be updated
+     * @param {*} deltaTime Time duration between updates
+     */
     update(entity, deltaTime) { 
         entity.pos.x += entity.vel.x  * deltaTime;
         entity.pos.y += entity.vel.y * deltaTime;
