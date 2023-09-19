@@ -13,7 +13,7 @@ Promise.all([ //Want both of these to load in parallell to avoid unnecessary del
     createMario(),
     loadLevel('1-1') //Level will load in with all layers and entities
 ])
-.then(([ mario, level]) => { // Instead of having to specify result[0] & result[1]
+.then(([mario, level]) => { // Instead of having to specify result[0] & result[1]
 
     const gravity = 2000;
     mario.pos.set(64, 64);

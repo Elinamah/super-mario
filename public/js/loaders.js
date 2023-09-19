@@ -25,6 +25,26 @@ export function loadImage(url) {
     });
 }
 
+/*
+- We loop over the backgrounds
+- We generalise which coordinates we have
+- We create meta data on the tiles in the matrix
+*/
+function createTiles(level, backgrounds) {
+    backgrounds.forEach(background => {
+        background.ranges.forEach(([x1, x2, y1, y2]) => {
+            for(let x = x1;x < x2;x++){
+                for(let y = y1; y < y2;y++) {
+                    level.tiles.set(x, y, {
+                        name: background.tile,
+                    })
+                }
+            }
+        });
+    });
+}
+
+
 /**
  * Loads and builds a game level based on the specified name.
  * @param {string} name - The name of the level to load.
@@ -40,11 +60,15 @@ export function loadLevel(name) {
     .then(([levelSpec, backgroundSprites]) => {
         const level = new Level();
 
-        const backgroundLayer = createBackgroundLayer(levelSpec.backgrounds, backgroundSprites);
+        createTiles(level, levelSpec.backgrounds);
+
+        const backgroundLayer = createBackgroundLayer(level, backgroundSprites);
         level.comp.layers.push(backgroundLayer);
     
         const spriteLayer = createSpriteLayer(level.entities);
         level.comp.layers.push(spriteLayer);
+
+        console.log(level);
 
         return level;
     });
