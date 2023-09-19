@@ -68,8 +68,6 @@ export function loadLevel(name) {
         const spriteLayer = createSpriteLayer(level.entities);
         level.comp.layers.push(spriteLayer);
 
-        console.log(level);
-
         return level;
     });
 }

@@ -32,6 +32,17 @@ Promise.all([ //Want both of these to load in parallell to avoid unnecessary del
     });
     input.listenTo(window);
 
+    /*Allow us to specify Marios location if we press left mouse button
+    Makes it easier to debug the tile collisions*/
+    ['mousedown', 'mousemove'].forEach(eventName => {
+        canvas.addEventListener(eventName, event => {
+            if (event.buttons === 1) {
+                mario.vel.set(0, 0);
+                mario.pos.set(event.offsetX, event.offsetY);
+            }
+        })
+    })
+
     const timer = new Timer(1/60);
 
     // Uses a hard coded value(1/60) to ensure stability even with different kinds of user framerates and framerate instabilities
