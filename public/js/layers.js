@@ -32,3 +32,43 @@ export function createSpriteLayer(entities) {
         })
     };
 }
+
+//Track which tiles we've gotten by getByIndex()
+export function createCollisionLayer(level) {
+    const resolvedTiles = [];
+
+    const tileResolver = level.tileCollider.tiles;
+    const tileSize = tileResolver.tileSize;
+
+    //this is needed so we can use the ".call()" function, which lets us acces the "this."" inside the getByIndex()
+    const getByIndexOriginal = tileResolver.getByIndex; //reference to the original function
+    tileResolver.getByIndex = function getByIndexFake(x, y) { //override the original
+        resolvedTiles.push({x, y});
+        return getByIndexOriginal.call(tileResolver, x, y);
+    }
+
+    return function drawCollision(context) {
+        //blue box around the box we currently pointing at
+        context.strokeStyle = 'blue';
+        resolvedTiles.forEach(({x, y}) => {
+            context.beginPath();
+            context.rect(
+                x * tileSize, 
+                y * tileSize, 
+                tileSize, tileSize);
+            context.stroke();
+        });
+
+        //red box around mario
+        context.strokeStyle = 'red';
+        level.entities.forEach(entity => {
+            context.beginPath();
+            context.rect(
+                entity.pos.x, entity.pos.y,
+                entity.size.x, entity.size.y);
+            context.stroke();
+        });
+
+        resolvedTiles.length = 0;
+    };
+}

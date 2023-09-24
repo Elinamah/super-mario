@@ -9,18 +9,12 @@ import { loadBackgroundSprites } from './sprites.js';
  * @returns {Promise<HTMLImageElement>} A Promise that resolves to the loaded image.
  */
 export function loadImage(url) {
-    // Create and return a new Promise.
     return new Promise(resolve => {
-        // Create a new image element.
         const image = new Image();
-        
-        // Add an event listener to the image's 'load' event.
         image.addEventListener('load', () => {
-            // When the image has loaded, resolve the Promise with the loaded image.
             resolve(image);
         });
         
-        // Set the 'src' attribute of the image to the provided URL, triggering the loading process.
         image.src = url;
     });
 }
@@ -33,11 +27,11 @@ export function loadImage(url) {
 function createTiles(level, backgrounds) {
     backgrounds.forEach(background => {
         background.ranges.forEach(([x1, x2, y1, y2]) => {
-            for(let x = x1;x < x2;x++){
-                for(let y = y1; y < y2;y++) {
+            for(let x = x1;x < x2;++x){
+                for(let y = y1; y < y2;++y) {
                     level.tiles.set(x, y, {
                         name: background.tile,
-                    })
+                    });
                 }
             }
         });

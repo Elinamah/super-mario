@@ -12,11 +12,11 @@ export default class KeyboardState {
 
     /**
      * Maps a keyboard key code to a callback function.
-     * @param {*} keyCode - The key code to map.
+     * @param {*} code - The key code to map.
      * @param {*} callback - The function to be executed when the key is pressed.
      */
-    addMapping(keyCode, callback) {
-        this.keyMap.set(keyCode, callback);
+    addMapping(code, callback) {
+        this.keyMap.set(code, callback);
     }
 
     /**
@@ -24,9 +24,9 @@ export default class KeyboardState {
      * @param {*} event - The keyboard event object, which key is pressed and a check if it's a new event.
      */
     handleEvent(event) {
-        const {keyCode} = event;
+        const {code} = event;
 
-        if (!this.keyMap.has(keyCode)) {
+        if (!this.keyMap.has(code)) {
             //Did not have key mapped
             return;
         }
@@ -35,29 +35,28 @@ export default class KeyboardState {
         event.preventDefault();
 
         //ternary operator:
-        //const keyState = event.type === 'keydown' ? PRESSED : RELEASED;
-        let keyState;
+        const keyState = event.type === 'keydown' ? PRESSED : RELEASED;
+/*         let keyState;
 
         if (event.type === 'keydown') {
             keyState = PRESSED;
         } else {
             keyState = RELEASED;
-        }
+        } */
 
-        // If keyStates and keyCode are already the same as the last event => no changes needed
-        if (this.keyStates.get(keyCode) === keyState) {
+        // If keyStates and code are already the same as the last event => no changes needed
+        if (this.keyStates.get(code) === keyState) {
             return;
         }
 
         //If there's a difference since the last event
-        this.keyStates.set(keyCode, keyState);
-        console.log(this.keyStates);
+        this.keyStates.set(code, keyState);
 
-        //this.keyMap.get(keyCode)(keyState);
-        const callback = this.keyMap.get(keyCode);
+        this.keyMap.get(code)(keyState);
+/*         const callback = this.keyMap.get(code);
         if (callback) {
             callback(keyState);
-        }
+        } */
 
     }
 

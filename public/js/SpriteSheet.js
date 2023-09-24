@@ -31,7 +31,7 @@ export default class SpriteSheet { //default export allows name to be changed wi
                 width,             // 8. Destination width
                 height             // 9. Destination height
             );
-        this.tiles.set(name, buffer);
+        this.tiles.set(name, buffer)
     }
 
     /**
