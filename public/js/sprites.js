@@ -13,17 +13,3 @@ export function loadMarioSprite() {
         return sprites;
     });
 }
-
-/**
- * Takes an image of multiple tile drawings and specifying which ones we want in our game
- * @returns loadImage -> SpriteSheet(which inclused a map of tiles) of the tiles we want
- */ 
-export function loadBackgroundSprites() {
-    return loadImage('/img/tiles.png')
-    .then(image => {
-        const sprites = new SpriteSheet(image, 16, 16);
-        sprites.defineTile('ground', 0, 0); //Naming & specifying from where in the src img we're starting the 16x16 box. 0x0 = top left corner
-        sprites.defineTile('sky', 3, 23);
-        return sprites;
-    });
-}

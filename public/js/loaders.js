@@ -1,6 +1,6 @@
 import Level from "./Level.js";
 import { createSpriteLayer, createBackgroundLayer} from './layers.js';
-import { loadBackgroundSprites } from './sprites.js';
+import SpriteSheet from './SpriteSheet.js'; 
 
 /**
  * Loads an image from a given URL and returns it as a Promise.
@@ -19,38 +19,83 @@ export function loadImage(url) {
     });
 }
 
+function loadJSON(url) {
+    return fetch(url) 
+    .then(response => response.json());
+}
+
 /*
 - We loop over the backgrounds
 - We generalise which coordinates we have
 - We create meta data on the tiles in the matrix
 */
 function createTiles(level, backgrounds) {
-    backgrounds.forEach(background => {
-        background.ranges.forEach(([x1, x2, y1, y2]) => {
-            for(let x = x1;x < x2;++x){
-                for(let y = y1; y < y2;++y) {
-                    level.tiles.set(x, y, {
-                        name: background.tile,
-                    });
-                }
+    function applyRange(background, xStart, xLen, yStart, yLen) {
+        const xEnd = xStart + xLen;
+        const yEnd = yStart + yLen;
+        for(let x = xStart;x < xEnd;++x){
+            for(let y = yStart; y < yEnd;++y) {
+                level.tiles.set(x, y, {
+                    name: background.tile,
+                    type: background.type,
+                });
             }
+        }
+    }
+
+    backgrounds.forEach(background => {
+        background.ranges.forEach(range => {
+           if (range.length === 4) {
+                //Applies values in order
+                const [xStart, xLen, yStart, yLen] = range;
+                applyRange(background, xStart, xLen, yStart, yLen);
+
+           } else if (range.length === 3) {
+                const [xStart, xLen, yStart] = range;
+                applyRange(background, xStart, xLen, yStart, 1);
+
+           } else if (range.length === 2) {
+            const [xStart, yStart] = range;
+            applyRange(background, xStart, 1, yStart, 1);
+       }
         });
     });
 }
 
+function loadSpriteSheet(name) {
+    return loadJSON(`/sprites/${name}.json`) 
+    .then(sheetSpec => Promise.all([
+        sheetSpec, 
+        loadImage(sheetSpec.imageURL)
+    ]))
+    .then(([sheetSpec, image]) => {
+        const sprites = new SpriteSheet(
+            image, 
+            sheetSpec.tileWidth, 
+            sheetSpec.tileHeight);
+
+        sheetSpec.tiles.forEach(tileSpec => {
+            sprites.defineTile(
+                tileSpec.name, 
+                tileSpec.index[0],
+                tileSpec.index[1]); //Naming & specifying from where in the src img we're starting the 16x16 box. 0x0 = top left corner
+        });        
+        return sprites;
+    });
+}   
 
 /**
  * Loads and builds a game level based on the specified name.
+ * Because of json structure, we can easily swap which world to show
  * @param {string} name - The name of the level to load.
  * @returns {Promise<Level>} - A promise that resolves(promise successfully completed) to the built Level object.
  */
 export function loadLevel(name) { 
-    return Promise.all([
-        fetch(`/levels/${name}.json`) // OBS the ´ instead of ' to allow placeholder value
-        .then(response => response.json()),
-
-        loadBackgroundSprites(),
-    ])
+    return loadJSON(`/levels/${name}.json`) //OBS the ` instead of ' used to be able to call placeholder value
+    .then(levelSpec => Promise.all([
+        levelSpec,
+        loadSpriteSheet(levelSpec.spriteSheet),
+    ]))    
     .then(([levelSpec, backgroundSprites]) => {
         const level = new Level();
 

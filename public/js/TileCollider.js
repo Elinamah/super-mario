@@ -22,7 +22,7 @@ export default class TileCollider {
         matches.forEach(match => {
 
             //Ignore and return if match isn't ground
-            if (match.tile.name !== 'ground') {
+            if (match.tile.type !== 'ground') {
                 return;
             }
 
@@ -65,7 +65,7 @@ export default class TileCollider {
         matches.forEach(match => {
 
             //Ignore and return if match isn't ground
-            if (match.tile.name !== 'ground') {
+            if (match.tile.type !== 'ground') {
                 return;
             }
 
