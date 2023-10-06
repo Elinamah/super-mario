@@ -22,10 +22,10 @@ Promise.all([ //Want both of these to load in parallell to avoid unnecessary del
 
     mario.pos.set(64, 64);
 
-    level.comp.layers.push(
+    /*level.comp.layers.push(
         createCollisionLayer(level),
         createCameraLayer(camera)
-    );
+    );*/
 
 
     level.entities.add(mario);

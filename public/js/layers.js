@@ -18,9 +18,9 @@ export function createBackgroundLayer(level, sprites) {
     let endIndex;
     function redraw(drawFrom, drawTo) {
         //We don't need to redo the loop if we haven't moved the camera
-        if (drawFrom === startIndex && drawTo === endIndex){
+/*         if (drawFrom === startIndex && drawTo === endIndex){
             return;
-        }
+        } OBS OPTIMIZATION SHOULD COME LATER*/ 
 
         startIndex = drawFrom;
         endIndex = drawTo;
@@ -30,7 +30,11 @@ export function createBackgroundLayer(level, sprites) {
             //if-statement needed, so it doesn't crash when camera moves and tiles are no longer there
             if (col) {
                 col.forEach((tile, y) => {
-                    sprites.drawTile(tile.name, context, x - startIndex, y);
+                    if (sprites.animations.has (tile.name)) {
+                        sprites.drawAnim(tile.name, context, x - startIndex, y, level.totalTime);
+                    } else {
+                        sprites.drawTile(tile.name, context, x - startIndex, y);
+                    }
                 });
             }
         }

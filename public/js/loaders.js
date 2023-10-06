@@ -1,6 +1,7 @@
 import Level from "./Level.js";
-import { createSpriteLayer, createBackgroundLayer} from './layers.js';
 import SpriteSheet from './SpriteSheet.js'; 
+import { createSpriteLayer, createBackgroundLayer} from './layers.js';
+import { createAnim } from './anim.js';
 
 /**
  * Loads an image from a given URL and returns it as a Promise.
@@ -62,7 +63,7 @@ function createTiles(level, backgrounds) {
     });
 }
 
-function loadSpriteSheet(name) {
+export function loadSpriteSheet(name) {
     return loadJSON(`/sprites/${name}.json`) 
     .then(sheetSpec => Promise.all([
         sheetSpec, 
@@ -74,12 +75,28 @@ function loadSpriteSheet(name) {
             sheetSpec.tileWidth, 
             sheetSpec.tileHeight);
 
-        sheetSpec.tiles.forEach(tileSpec => {
-            sprites.defineTile(
-                tileSpec.name, 
-                tileSpec.index[0],
-                tileSpec.index[1]); //Naming & specifying from where in the src img we're starting the 16x16 box. 0x0 = top left corner
-        });        
+        if (sheetSpec.tiles) {
+            sheetSpec.tiles.forEach(tileSpec => {
+                sprites.defineTile(
+                    tileSpec.name, 
+                    tileSpec.index[0],
+                    tileSpec.index[1]); //Naming & specifying from where in the src img we're starting the 16x16 box. 0x0 = top left corner
+            });   
+        }    
+
+        if (sheetSpec.frames) {
+            sheetSpec.frames.forEach(frameSpec => {
+                sprites.define(frameSpec.name, ...frameSpec.rect); //spread operator, instead of typing frameSpec[0], framspec[1]...
+            });
+        }
+
+        if (sheetSpec.animations) {
+            sheetSpec.animations.forEach(animSpec => {
+                const animation = createAnim(animSpec.frames, animSpec.frameLen);
+                sprites.defineAnim(animSpec.name, animation);
+            });
+        }
+
         return sprites;
     });
 }   

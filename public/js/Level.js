@@ -5,6 +5,7 @@ import { Matrix } from "./math.js";
 export default class Level {
     constructor() {
         this.gravity = 2000;
+        this.totalTime = 0;
 
         this.comp = new Compositor();
         this.entities = new Set(); //A set ensures that there's only 1 entity of each/set
@@ -29,5 +30,7 @@ export default class Level {
 
             entity.vel.y += this.gravity * deltaTime;
         });
+
+        this.totalTime += deltaTime;
     }
 }
