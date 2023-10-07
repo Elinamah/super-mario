@@ -4,6 +4,9 @@ import Go from "./traits/Go.js";
 import { createAnim } from "./anim.js";
 import { loadSpriteSheet } from "./loaders.js"
 
+const SLOW_DRAG = 1/1500;
+const FAST_DRAG = 1/5000;
+
 /**
  * Function for creating Mario sprite
  * @returns loadMarioSprite()
@@ -15,12 +18,25 @@ export function createMario() {
         mario.size.set(14, 16); // size needed for collision, otherwise mario "hangs from his head" from the buttom of the tile
 
         mario.addTrait(new Go());
+        mario.go.dragFactor = SLOW_DRAG;
         mario.addTrait(new Jump());
 
+        mario.turbo = function setTurboState(turboOn) {
+            this.go.dragFactor = turboOn ? FAST_DRAG : SLOW_DRAG;
+        }
+
         //similar to a mini API
-        const runAnim = createAnim(['run-1', 'run-2', 'run-3'], 10);
+        const runAnim = createAnim(['run-1', 'run-2', 'run-3'], 6);
         function routeFrame(mario) {
-            if (mario.go.dir !== 0) {
+            if (mario.jump.falling) {
+                return 'jump';
+            }
+
+            if (mario.go.distance > 0) {
+                if ((mario.vel.x > 0 && mario.go.dir < 0 )|| (mario.vel.x < 0 && mario.go.dir > 0)) {
+                    return 'break';
+                }
+
                 return runAnim(mario.go.distance);
             }
 

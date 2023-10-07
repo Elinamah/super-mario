@@ -1,4 +1,5 @@
 import TileResolver from "./TileResolver.js";
+import { Sides } from './Entity.js'
 
 export default class TileCollider {
     constructor(tileMatrix) {
@@ -74,6 +75,8 @@ export default class TileCollider {
                 if (entity.pos.y + entity.size.y > match.y1) { //if entity has passed through ground tile
                     entity.pos.y = match.y1 - entity.size.y; //then put entity ontop of ground tile
                     entity.vel.y = 0; //stops the entity from falling
+
+                    entity.obstruct(Sides.BOTTOM);
                 }
             }
 
@@ -81,12 +84,10 @@ export default class TileCollider {
                 if (entity.pos.y < match.y2) { //if entity has passed through ground tile
                     entity.pos.y = match.y2; //then put entity ontop of ground tile
                     entity.vel.y = 0; //stops the entity from falling
+
+                    entity.obstruct(Sides.TOP);
                 }
             }
         });
-    }
-
-    test(entity) {
-        this.checkY(entity);
     }
 }
