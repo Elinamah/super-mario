@@ -1,12 +1,13 @@
+import TileResolver from "./TileResolver.js";
+
 /**
  * Draws up the whole background tile by tile, on a buffer, until the whole background is complete
  * @param {*} backgrounds 
  * @param {*} sprites 
  * @returns drawBackgroundLayer(context) 
  */
-export function createBackgroundLayer(level, sprites) {
-    const tiles = level.tiles;
-    const resolver = level.tileCollider.tiles;
+export function createBackgroundLayer(level, tiles, sprites) {
+    const resolver = new TileResolver(tiles);
 
     const buffer = document.createElement('canvas');
     buffer.width = 256 + 16;
@@ -14,23 +15,15 @@ export function createBackgroundLayer(level, sprites) {
 
     const context = buffer.getContext('2d');
 
-    let startIndex;
-    let endIndex;
-    function redraw(drawFrom, drawTo) {
-        //We don't need to redo the loop if we haven't moved the camera
-/*         if (drawFrom === startIndex && drawTo === endIndex){
-            return;
-        } OBS OPTIMIZATION SHOULD COME LATER*/ 
-
-        startIndex = drawFrom;
-        endIndex = drawTo;
+    function redraw(startIndex, endIndex) {
+        context.clearRect(0, 0, buffer.width, buffer.height);
 
         for (let x = startIndex; x <= endIndex; ++x) {
             const col = tiles.grid[x];
             //if-statement needed, so it doesn't crash when camera moves and tiles are no longer there
             if (col) {
                 col.forEach((tile, y) => {
-                    if (sprites.animations.has (tile.name)) {
+                    if (sprites.animations.has(tile.name)) {
                         sprites.drawAnim(tile.name, context, x - startIndex, y, level.totalTime);
                     } else {
                         sprites.drawTile(tile.name, context, x - startIndex, y);
@@ -59,8 +52,8 @@ export function createBackgroundLayer(level, sprites) {
  */
 export function createSpriteLayer(entities, width = 64,height = 64 ) {
     const spriteBuffer = document.createElement('canvas');
-    spriteBuffer.width = 64;
-    spriteBuffer.height = 64;
+    spriteBuffer.width = width;
+    spriteBuffer.height = height;
     const spriteBufferContext = spriteBuffer.getContext('2d');
 
     return function drawSpriteLayer(context, camera) {
