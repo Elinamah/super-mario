@@ -9,16 +9,16 @@ export default class TileCollider {
     checkX(entity) {
         let x;
         if (entity.vel.x > 0) {
-            x = entity.pos.x + entity.size.x;
+            x = entity.bounds.right;
         } else if (entity.vel.x < 0) {
-            x = entity.pos.x;
+            x = entity.bounds.left;
         } else {
             return;
         }
 
         const matches = this.tiles.searchByRange(
             x, x,
-            entity.pos.y, entity.pos.y + entity.size.y);
+            entity.bounds.top, entity.bounds.bottom);
 
         matches.forEach(match => {
 
@@ -29,38 +29,37 @@ export default class TileCollider {
 
             //entity.size.x needed for anchor point be marios feet, not his head
             if (entity.vel.x > 0) { //If the entity is moving downwards
-                if (entity.pos.x + entity.size.x > match.x1) { //if entity has passed through ground tile
-                    entity.pos.x = match.x1 - entity.size.x; //then put entity ontop of ground tile
+                if (entity.bounds.right > match.x1) { //if entity has passed through ground tile
+                    entity.bounds.right = match.x1; //then put entity ontop of ground tile
                     entity.vel.x = 0; //stops the entity from falling
+
+                    entity.obstruct(Sides.RIGHT);
                 }
             }
 
             else if (entity.vel.x < 0) { //If the entity is moving downwards
-                if (entity.pos.x < match.x2) { //if entity has passed through ground tile
-                    entity.pos.x = match.x2; //then put entity ontop of ground tile
+                if (entity.bounds.left < match.x2) { //if entity has passed through ground tile
+                    entity.bounds.left = match.x2; //then put entity ontop of ground tile
                     entity.vel.x = 0; //stops the entity from falling
+
+                    entity.obstruct(Sides.LEFT);
                 }
             }
         });
     }
 
-    /**
-     * Function for not falling through floor
-     * @param {*} entity 
-     * @returns 
-     */
     checkY(entity) {
         let y;
         if (entity.vel.y > 0) {
-            y = entity.pos.y + entity.size.y;
+            y = entity.bounds.bottom;
         } else if (entity.vel.y < 0) {
-            y = entity.pos.y;
+            y = entity.bounds.top;
         } else {
             return;
         }
 
         const matches = this.tiles.searchByRange(
-            entity.pos.x, entity.pos.x + entity.size.x,
+            entity.bounds.left, entity.bounds.right,
             y, y);
 
         matches.forEach(match => {
@@ -72,8 +71,8 @@ export default class TileCollider {
 
             //entity.size.y needed for anchor point be marios feet, not his head
             if (entity.vel.y > 0) { //If the entity is moving downwards
-                if (entity.pos.y + entity.size.y > match.y1) { //if entity has passed through ground tile
-                    entity.pos.y = match.y1 - entity.size.y; //then put entity ontop of ground tile
+                if (entity.bounds.bottom > match.y1) { //if entity has passed through ground tile
+                    entity.bounds.bottom = match.y1; //then put entity ontop of ground tile
                     entity.vel.y = 0; //stops the entity from falling
 
                     entity.obstruct(Sides.BOTTOM);
@@ -81,8 +80,8 @@ export default class TileCollider {
             }
 
             else if (entity.vel.y < 0) { //If the entity is moving downwards
-                if (entity.pos.y < match.y2) { //if entity has passed through ground tile
-                    entity.pos.y = match.y2; //then put entity ontop of ground tile
+                if (entity.bounds.top < match.y2) { //if entity has passed through ground tile
+                    entity.bounds.top = match.y2; //then put entity ontop of ground tile
                     entity.vel.y = 0; //stops the entity from falling
 
                     entity.obstruct(Sides.TOP);

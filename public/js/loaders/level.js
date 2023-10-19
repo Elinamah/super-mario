@@ -3,42 +3,55 @@ import { createSpriteLayer, createBackgroundLayer} from '../layers.js';
 import { loadJSON, loadSpriteSheet } from "../loaders.js";
 import { Matrix } from "../math.js";
 
-/**
- * Loads and builds a game level based on the specified name.
- * Because of json structure, we can easily swap which world to show
- * @param {string} name - The name of the level to load.
- * @returns {Promise<Level>} - A promise that resolves(promise successfully completed) to the built Level object.
- */
-export function loadLevel(name) { 
-    return loadJSON(`/levels/${name}.json`) //OBS the ` instead of ' used to be able to call placeholder value
-    .then(levelSpec => Promise.all([
-        levelSpec,
-        loadSpriteSheet(levelSpec.spriteSheet),
-    ]))    
-    .then(([levelSpec, backgroundSprites]) => {
-        const level = new Level();
+function setupCollision(levelSpec, level) {
+    const mergedTiles = levelSpec.layers.reduce((mergedTiles, layerSpec) => {
+        return mergedTiles.concat(layerSpec.tiles);
+    }, []);
 
-        const mergedTiles = levelSpec.layers.reduce((mergedTiles, layerSpec) => {
-            return mergedTiles.concat(layerSpec.tiles);
-        }, []);
+    const collisionGrid = createCollisionGrid(mergedTiles, levelSpec.patterns);
+    level.setCollisionGrid(collisionGrid);
+}
 
-        //console.log('levelSpec:', levelSpec);
-        console.log('Tiles:', levelSpec.layers);
-
-        const collisionGrid = createCollisionGrid(mergedTiles, levelSpec.patterns);
-        level.setCollisionGrid(collisionGrid);
-
-        levelSpec.layers.forEach(layer => {
-            const backgroundGrid = createBackgroundGrid(layer.tiles, levelSpec.patterns);
-            const backgroundLayer = createBackgroundLayer(level, backgroundGrid, backgroundSprites);
-            level.comp.layers.push(backgroundLayer);
-        });
-    
-        const spriteLayer = createSpriteLayer(level.entities);
-        level.comp.layers.push(spriteLayer);
-
-        return level;
+function setupBackgrounds(levelSpec, level, backgroundSprites) {
+    levelSpec.layers.forEach(layer => {
+        const backgroundGrid = createBackgroundGrid(layer.tiles, levelSpec.patterns);
+        const backgroundLayer = createBackgroundLayer(level, backgroundGrid, backgroundSprites);
+        level.comp.layers.push(backgroundLayer);
     });
+}
+
+function setupEntities(levelSpec, level, entityFactory) {
+    levelSpec.entities.forEach(({name, pos: [x, y]}) => {
+        const createEntity = entityFactory[name];
+        const entity = createEntity();
+        entity.pos.set(x, y);
+        level.entities.add(entity);
+    });
+
+    const spriteLayer = createSpriteLayer(level.entities);
+    level.comp.layers.push(spriteLayer);
+}
+
+// Loads and builds a game level based on the specified name.
+export function createLevelLoader(entityFactory) {
+    return function loadLevel(name) { 
+        return loadJSON(`/levels/${name}.json`) //OBS the ` instead of ' used to be able to call placeholder value
+        .then(levelSpec => Promise.all([
+            levelSpec,
+            loadSpriteSheet(levelSpec.spriteSheet),
+        ]))    
+        .then(([levelSpec, backgroundSprites]) => {
+            const level = new Level();
+
+            setupCollision(levelSpec, level);
+
+            setupBackgrounds(levelSpec, level, backgroundSprites);
+
+            setupEntities(levelSpec, level, entityFactory);
+
+            return level;
+        });
+    }
 }
 
 function createCollisionGrid(tiles, patterns) {
@@ -95,6 +108,7 @@ function expandRange(range) {
 
 function* expandRanges(ranges) {
     for (const range of ranges) {
+        // yield* expandRange(range)
         for (const item of expandRange(range)) {
             yield item;
         }

@@ -1,23 +1,25 @@
 import Camera from './Camera.js';
 import Timer from './Timer.js';
-import { loadLevel } from './loaders/level.js';
-import { createMario } from './entities.js';
+import { createLevelLoader } from './loaders/level.js';
+import { loadEntities } from './entities.js';
 import { setupKeyboard } from './input.js';
+import { createCollisionLayer } from './layers.js';
 
-const canvas = document.getElementById('screen');
-const context = canvas.getContext('2d');
+async function main(canvas) {
+    const context = canvas.getContext('2d')
 
-Promise.all([ //Want both of these to load in parallell to avoid unnecessary delay
-    createMario(),
-    loadLevel('1-1'), //Level will load in with all layers and entities
-])
-.then(([mario, level]) => { // Instead of having to specify result[0] & result[1]
+    const entityFactory = await loadEntities();
+    const loadLevel = await createLevelLoader(entityFactory);
+
+    const level = await loadLevel('1-1');
+
     const camera = new Camera();
-    window.camera = camera;
 
+    const mario = entityFactory.mario();
     mario.pos.set(64, 64);
-
     level.entities.add(mario);
+
+    level.comp.layers.push(createCollisionLayer(level));
 
     const input = setupKeyboard(mario);
     input.listenTo(window);
@@ -36,4 +38,7 @@ Promise.all([ //Want both of these to load in parallell to avoid unnecessary del
     }
 
     timer.start(); 
-});
+}
+
+const canvas = document.getElementById('screen');
+main(canvas);
